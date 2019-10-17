@@ -12,13 +12,13 @@ using namespace std;
     100以下の正の整数 N を入力すると, N の加法連鎖の元となる数列が出力されます.
 */
 
-int main(){
+void solve(int mode){
     vector<vector<int>> chain(10); // chain[i] : 長さ i で初めて加法連鎖が可能となる数の集合
     chain[0].push_back(1);
     vector<vector<int>> ancestor(515); // ancestor : chain[i + 1] を作るときに使える加法の元
     ancestor[1].push_back(1);
-    vector<int> len(515); // 探索中に発見した数字のフラグ. 加法連鎖の長さもこれに格納する.
-    len[1] = 1;
+    vector<int> used(515); // 探索中に発見した数字のフラグ. 加法連鎖の長さもこれに格納する.
+    used[1] = 1;
     for(int i = 0; i < 9; i++){
         for(auto cur : chain[i]){
             for(auto a1 : ancestor[cur]){
@@ -27,8 +27,8 @@ int main(){
                     // 1:長さ i の各元から根(1)まで辿ることで構成される数列(ancestor[cur])の要素の和で表現される ⇔ next == a1 + a2
                     // 2:長さ i 以下の探索で未発見である ⇔ used[next] == 0
                     int next = a1 + a2;
-                    if(!len[next]){
-                        len[next] = i + 1; // 発見済のフラグをつける.
+                    if(!used[next]){
+                        used[next] = i + 1; // 発見済のフラグをつける.
                         chain[i + 1].push_back(next); // next は長さ i + 1 の加法連鎖をなす.
                         for(auto x : ancestor[cur]){
                             ancestor[next].push_back(x);
@@ -39,19 +39,15 @@ int main(){
             }
         }
     }
-    cout << "1 : Print Chain List, 2 : Print Chain of N" << endl;
-    int q;
-    cin >> q;
-    if(q == 1){
+    if(mode == 1){
         for(int i = 0; i <= 9; i++){
-            //sort(chain[i].begin(), chain[i].end());
             for(auto c : chain[i]){
                 cout << c << " ";
             }
             cout << endl;
         }
     }
-    else if(q == 2){
+    else if(mode == 2){
         cout << "Input N" << endl;
         int n;
         cin >> n;
@@ -59,7 +55,15 @@ int main(){
             cout << x << " ";
         }
         cout << endl << "The minimum length is ";
-        cout << len[n] << endl;
+        int len = ancestor[n].size();
+        cout << len << endl;
     }
+}
+
+int main(){
+    cout << "1 : Print Chain List, 2 : Print Chain of N" << endl;
+    int mode;
+    cin >> mode;
+    solve(mode);
     return 0;
 }
