@@ -5,14 +5,14 @@ using namespace std;
 
 //O(n)
 int multiply0(int n, int a){
-    if(n == 1) return a;
+    if (n == 1) return a;
     return multiply0(n - 1, a) + a;
 }
 
 //非再帰, O(n)
 int non_rec_multiply0(int n, int a){
     int result = a;
-    for(int i = 0; i < n - 1; i++){
+    for (int i = 0; i < n - 1; i++){
         result += a;
     }
     return result;
@@ -27,18 +27,17 @@ int half(int n){
 
 // O(log(n))
 int multiply1(int n, int a){
-    if(n == 1) return a;
+    if (n == 1) return a;
     int result = multiply1(half(n), a + a);
-    if(odd(n)) result = result + a;
+    if (odd(n)) result = result + a;
     return result;
 }
 
 // 非再帰 O(log(n))
 int non_rec_multiply1(int n, int a){
-    int res = a;
-    n--;
-    while(n){
-        if(odd(n)) res = res + a; // v(n) - 1
+    int res = 0;
+    while (n){
+        if (odd(n)) res = res + a; // v(n)
         n = half(n);
         a = a + a; //floor(log(n))
     }
@@ -48,7 +47,7 @@ int non_rec_multiply1(int n, int a){
 // a ^ n
 int pow(int n, int a){
   	int res = 1;
-  	while(n > 0){
+  	while (n > 0){
     	if(odd(n)) res = res * a;
         n = half(n);
     	a = a * a;
@@ -65,8 +64,8 @@ int multiply_by_15(int a){
 
 // return r + n * a
 int multi_acc0(int r, int n, int a){
-    if(n == 1) return r + a;
-    if(odd(n)){
+    if (n == 1) return r + a;
+    if (odd(n)){
         return multi_acc0(r + a, half(n), a + a);
     }else{
         return multi_acc0(r, half(n), a + a);
@@ -75,17 +74,17 @@ int multi_acc0(int r, int n, int a){
 
 // tail-recursive
 int multi_acc1(int r, int n, int a){
-    if(n ==1)return r + a;
+    if (n == 1) return r + a;
     
-    if(odd(n)) r = r + a;
+    if (odd(n)) r = r + a;
     return multi_acc1(r, half(n), a + a);
 }
 
 // 初めに偶奇判定することで計算回数を半減させられる
 int multi_acc2(int r, int n, int a){
-    if(odd(n)){
+    if (odd(n)){
         r = r + a;
-        if(n ==1)return r;
+        if (n == 1) return r;
     }
     return multi_acc2(r, half(n), a + a);
 }
@@ -93,7 +92,7 @@ int multi_acc2(int r, int n, int a){
 // 正確な tail-recursive
 // 再帰呼び出しの引数の形が一緒
 int multi_acc3(int r, int n, int a){
-    if(odd(n)){
+    if (odd(n)){
         r = r + a;
         if(n ==1)return r;
     }
@@ -106,8 +105,8 @@ int multi_acc3(int r, int n, int a){
 
 // 非再帰化
 int multi_acc4(int r, int n, int a){
-    while(true){
-        if(odd(n)){
+    while (true){
+        if (odd(n)){
             r = r + a;
             if(n == 1) return r;
         }
@@ -117,12 +116,12 @@ int multi_acc4(int r, int n, int a){
 }
 
 int multiply2(int n, int a){
-    if(n == 1) return a;
+    if (n == 1) return a;
     return multi_acc4(a, n - 1, a);
 }
 
 int multiply3(int n, int a){
-    while(!odd(n)){
+    while (!odd(n)){
         a = a + a;
         n = half(n);
     }
@@ -130,11 +129,11 @@ int multiply3(int n, int a){
 }
 
 int multiply4(int n, int a){
-    while(!odd(n)){
+    while (!odd(n)){
         a = a + a;
         n = half(n);
     }
-    if(n == 1) return a;
+    if (n == 1) return a;
     return multi_acc4(a, half(n - 1), a + a);
 }
 
