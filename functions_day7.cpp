@@ -21,5 +21,6 @@ int main(){
     for (int i = 0; i < n; i++) cin >> a[i];
     int res = polynomial_value(a.begin(), a.end(), 3);
     cout << res << endl;
+    cout << "" << endl;
     return 0;
 }
