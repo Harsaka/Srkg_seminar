@@ -19,7 +19,7 @@ using P = pair<ll, ll>;
 const int inf = 1e9;
 const double eps = 0.00001;
 
-const vector<vector<int>> matrix_8_7 = {
+const vector<vector<bool>> matrix_8_7 = {
     {1, 1, 0, 1, 0, 0, 0},
     {1, 1, 0, 0, 0, 1, 0},
     {0, 0, 1, 1, 0, 0, 0},
@@ -46,7 +46,6 @@ matrix<T> matrix_mul(const matrix<T> &l, const matrix<T> &r) {
         for (int k = 0; k < (int)r.size(); k++) {
             for (int j = 0; j < (int)r[0].size(); j++) {
                 ret[i][j] += l[i][k] * r[k][j];
-                // ret[i][j] |= l[i][k] & r[k][j];
             }
         }
     }
@@ -178,10 +177,15 @@ vd gcd(vd &a, vd &b) {
 }
 
 void print_polynomial_gcd() {
+    cout << "input the size of polynomial A:";
     int n, m;
-    cin >> n >> m;
+    cin >> n;
     vd a(n), b(m);
+    cout << "input polynomial A:";
     REP(i, n) cin >> a[i];
+    cout << "input the size of polynomial B:";
+    cin >> m;
+    cout << "input polynomial B:";
     REP(i, m) cin >> b[i];
 
     vd res1 = gcd(a, b), res2 = gcd2(a, b);
@@ -199,9 +203,43 @@ void print_polynomial_gcd() {
 
 // 8.6 応用:ソーシャルネットワークと最短経路
 // a : n * n 行列 ... 隣接行列
+
+template <typename T>
+matrix<T> bool_mul(const matrix<T> &l, const matrix<T> &r) {
+    matrix<T> ret(l.size(), std::vector<T>(r[0].size()));
+    for (int i = 0; i < (int)l.size(); i++) {
+        for (int k = 0; k < (int)r.size(); k++) {
+            for (int j = 0; j < (int)r[0].size(); j++) {
+                ret[i][j] = ret[i][j] | (l[i][k] & r[k][j]); // ここ代入演算子 |= 使ったら error になるの謎
+            }
+        }
+    }
+    return ret;
+}
+
+// 単位元
+template <typename T>
+matrix<T> bool_eye(const int n) {
+    matrix<T> ret(n, vector<T>(n, false));
+    for (int i = 0; i < n; i++) ret[i][i] = true;
+    return ret;
+}
+
+// 行列累乗
+// return X ^ n ... O(logn)
+template <typename T>
+matrix<T> bool_pow(matrix<T> x, int n) {
+    auto ret = bool_eye<T>(x.size());
+    while (n) {
+        if (n & 1) ret = bool_mul(ret, x);
+        x = bool_mul(x, x);
+        n /= 2;
+    }
+    return ret;
+}
 template <typename T>
 matrix<T> transitive_closure(matrix<T> a, int n) {
-    matrix<T> res = matrix_pow(a, n);
+    matrix<T> res = bool_pow(a, n);
     return res;
 }
 
@@ -257,6 +295,7 @@ matrix<T> tropical_pow(matrix<T> x, int n) {
     return ret;
 }
 
+// 全頂点対最短距離, O(n^3 logn)
 template <typename T>
 matrix<T> shortest_distance(matrix<T> a, int n) {
     matrix<T> res = tropical_pow(a, n);
@@ -276,6 +315,7 @@ void print_shortest_distance() {
     }
 }
 
+// 全頂点対最短距離 O(n^3)
 void print_Warshall_Floyd() {
     auto d = matrix_8_8;
     int n = d.size();
@@ -295,6 +335,7 @@ void print_Warshall_Floyd() {
     }
 }
 
+// 経路復元
 vector<int> restore_path(int from, int to) {
     auto d = matrix_8_8;
     int n = d.size();
@@ -316,15 +357,12 @@ vector<int> restore_path(int from, int to) {
     return p;
 }
 
-int main(){
-    // print_polynomial_gcd();
-    // print_transitive_closure();
-    //print_shortest_distance();
-    //print_Warshall_Floyd();
-
-    
+void print_restore_path() {
+    cout << "input Start point s:";
     int s, t;
-    cin >> s >> t;
+    cin >> s;
+    cout << "input Goal point t:";
+    cin >> t;
     auto xxx = restore_path(s, t);
     cout << char('A' + s) << "->";
     for (auto x : xxx) {
@@ -332,6 +370,12 @@ int main(){
         if (x != t) cout << "->";
     }
     cout << endl;
-    
+}
+
+int main(){
+    //print_polynomial_gcd();
+    //print_transitive_closure();
+    //print_shortest_distance();
+    //print_Warshall_Floyd();
     return 0;
 }
