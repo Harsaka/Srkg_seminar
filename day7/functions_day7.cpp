@@ -45,7 +45,7 @@ matrix<T> matrix_mul(const matrix<T> &l, const matrix<T> &r) {
     for (int i = 0; i < (int)l.size(); i++) {
         for (int k = 0; k < (int)r.size(); k++) {
             for (int j = 0; j < (int)r[0].size(); j++) {
-                ret[i][j] += l[i][k] * r[k][j];
+                ret[i][j] = ret[i][j] + l[i][k] * r[k][j];
             }
         }
     }
@@ -61,7 +61,8 @@ matrix<T> eye(const int n) {
 }
 
 // 行列累乗
-// return X ^ n ... O(logn)
+// return X ^ n
+// 累乗自体は対数時間だが行列乗算でO(n^3)かかるので全体でO(n^3logn)
 template <typename T>
 matrix<T> matrix_pow(matrix<T> x, int n) {
     auto ret = eye<T>(x.size());
@@ -76,10 +77,6 @@ matrix<T> matrix_pow(matrix<T> x, int n) {
 // 7章
 
 // 多項式の計算 (Σa_i × x*x*...*x)
-// x にはどんな構造を乗せられるか
-// 加算(+) が定義されている(c = b1 + b2)
-// 乗算(*) が定義されている
-// 定数倍は加算で行える
 template <InputIterator I, Semiring R>
 R polynomial_value(I first, I last, R x) {
     if (first == last) return R(0);
@@ -100,25 +97,6 @@ void test_polynomial_value() {
     cout << res << endl;
     return;
 }
-/*
-template <Polynomial P, InputIterator I, Semiring R>
-P reminder(P a, P b, I a_first, I a_last, I b_first, I b_last) {
-    // 事前条件: b != 0
-    if (*b_first == 0) return 1;
-    int a_len = a_last - a_first + 1, b_len = b_last - b_first + 1;
-    if (a_len < b_len) return 1;
-    P c = b;
-}
-
-
-polynomial<real> gcd(polynomial<real> a, polynomial<real> b) {
-    while (b != polynomial<real>(0)) {
-        a = remainder(a, b);
-        swap(a, b);
-    }
-    return a;
-}
-*/
 
 vd remainder(vd &a, vd &b) {
     int alen = a.size(), blen = b.size();
@@ -139,41 +117,12 @@ vd remainder(vd &a, vd &b) {
     return r;
 }
 
-vd gcd2(vd &a, vd &b) {
+vd gcd(vd &a, vd &b) {
     while (abs(b[0]) > eps) {
         a = remainder(a, b);
         swap(a, b);
     }
     return a;
-}
-
-vd gcd(vd &a, vd &b) {
-    int alen = a.size(), blen = b.size();
-    if (alen < blen) swap(a, b);
-    // 割り切れた場合
-    if (abs(b[0]) < eps) {
-        return a;
-    }
-    // 割り切れなかった場合
-    else if (blen == 1) {
-        cout << "failed" << endl;
-        return {-1};
-    }
-    double q = a[0] / b[0];
-    vd r;
-    int flg = 1;
-    for (int i = 0; i < blen; i++) {
-        if (abs(a[i] - b[i] * q) < eps) {
-            if (flg) continue;
-        }
-        else flg = 0;
-        r.push_back(a[i] - b[i] * q);
-    }
-    for (int i = blen; i < alen; i++) {
-        r.push_back(a[i]);
-    }
-    if (r.size() == 0) r.push_back(0);
-    return gcd(b, r);
 }
 
 void print_polynomial_gcd() {
@@ -188,14 +137,10 @@ void print_polynomial_gcd() {
     cout << "input polynomial B:";
     REP(i, m) cin >> b[i];
 
-    vd res1 = gcd(a, b), res2 = gcd2(a, b);
-    /*
-    for (auto x : res1) {
-        cout << x << " ";
-    }
-    */
+    vd res = gcd(a, b);
+
     cout << endl;
-    for (auto x : res2) {
+    for (auto x : res) {
         cout << x << " ";
     }
     cout << endl;
@@ -226,7 +171,7 @@ matrix<T> bool_eye(const int n) {
 }
 
 // 行列累乗
-// return X ^ n ... O(logn)
+// return X ^ n ... O(n^3logn)
 template <typename T>
 matrix<T> bool_pow(matrix<T> x, int n) {
     auto ret = bool_eye<T>(x.size());
@@ -281,7 +226,7 @@ matrix<T> tropical_mul(const matrix<T> &l, const matrix<T> &r) {
 }
 
 // 行列累乗 for tropical
-// return X ^ n ... O(logn)
+// return X ^ n ... O(n^3logn)
 template <typename T>
 matrix<T> tropical_pow(matrix<T> x, int n) {
     int len = x.size();
@@ -295,7 +240,7 @@ matrix<T> tropical_pow(matrix<T> x, int n) {
     return ret;
 }
 
-// 全頂点対最短距離, O(n^3 logn)
+// 全頂点対最短距離, O(n^3logn)
 template <typename T>
 matrix<T> shortest_distance(matrix<T> a, int n) {
     matrix<T> res = tropical_pow(a, n);
